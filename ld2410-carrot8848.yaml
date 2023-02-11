@@ -29,8 +29,8 @@ api:
 
 ota:
 dashboard_import:
-  package_import_url: github://esphome/esphome-project-template/project-template-esp32.yaml@v6
-  import_full_config: false # or true
+  package_import_url: github://carrot8848/ld2410/ld2410-carrot8848.yaml
+  import_full_config: true
 
 wifi:
   ap:
