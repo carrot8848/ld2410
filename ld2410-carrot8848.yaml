@@ -29,7 +29,7 @@ api:
 
 ota:
 dashboard_import:
-  package_import_url: github://carrot8848/ld2410/ld2410-carrot8848.yaml
+  package_import_url: github://carrot8848/ld2410/ld2410-carrot8848.yaml@main
   import_full_config: true
 
 wifi:
