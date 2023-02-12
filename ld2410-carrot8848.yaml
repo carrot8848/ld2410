@@ -1,5 +1,6 @@
 substitutions:
-  name: "ld2410-carrot8848"
+  name: "ld2410-motion-sensor-carrot8848"
+  location: "客厅"  #传感器放置位置
 esphome:
   name: "${name}"
   name_add_mac_suffix: true
@@ -61,7 +62,7 @@ i2c:
 
 sensor:
   - platform: bh1750
-    name: "Human Presence 1 Illuminance"
+    name: "${location} 亮度"
     address: 0x5c
     update_interval: 10s
     
@@ -154,9 +155,9 @@ binary_sensor:
   - platform: gpio
     id: human_presence_1_motion
     pin: 
-      number: GPIO21  #D0
+      number: GPIO21  
       mode: INPUT_PULLDOWN
-    name: "human_presence_1"
+    name: "${location}存在感应"
     device_class: presence
     
  # - platform: gpio
@@ -253,7 +254,7 @@ number:
     step: 0.75
     #restore_value: true
     optimistic: true
-    unit_of_measurement: m   #手册没有配置命令？？服了
+    unit_of_measurement: m   
     
   - platform: template
     name: max_mov_distance  #最大移动探测距离
