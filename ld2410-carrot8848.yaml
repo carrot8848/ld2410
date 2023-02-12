@@ -1,5 +1,5 @@
 substitutions:
-  name: "ld2410-motion-sensor-carrot8848"
+  name: "ld2410-motion-sensor"
   location: "客厅"  #传感器放置位置
 esphome:
   name: "${name}"
