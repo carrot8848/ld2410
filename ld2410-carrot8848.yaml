@@ -161,23 +161,6 @@ binary_sensor:
     name: "${location}存在感应"
     device_class: presence
     
- # - platform: gpio
- #   id: human_presence_1_PIR
- #   pin: GPIO12  #D6
- #   name: "human_presence_1_pir"
- #   device_class: motion
-    
-#output:
-#  - platform: gpio
-#    id: "human_presence_1_light"
-#    pin: GPIO2  #D4
-#    inverted: true
-    
-#light:
-#  - platform: binary
-#    output: "human_presence_1_light"
-#    name: "human presence 1 light"
-
 switch:
   - platform: template
     name: "Config mode"
