@@ -1,9 +1,12 @@
+substitutions:
+  name: "ld2410-carrot8848"
 esphome:
   name: "${name}"
   name_add_mac_suffix: true
+  comment: LD2410 Motion Sensor
   project:
-    name: esphome.ld2410-carrot8848
-    version: "1.0"
+    name: carrot8848.ld2410
+    version: "1.0.0"
   on_boot:
     priority: 700
     then:
@@ -37,11 +40,6 @@ wifi:
     password: "12345678"
 
 captive_portal:
-
-esp32_improv:
-  authorizer: none
-substitutions:
-  name: "ld2410-carrot8848"
 
 script:
   - id: get_all_params
@@ -193,7 +191,7 @@ switch:
   - platform: gpio
     name: "LED_switch"
     pin:
-      number: 12
+      number: 14
       inverted: true
       mode:
         output: true
