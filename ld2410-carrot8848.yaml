@@ -1,8 +1,8 @@
 substitutions:
-  name: "ld2410-motion-sensor"
+  device_name: "ld2410-motion-sensor"
   location: "客厅"  #传感器放置位置
 esphome:
-  name: "${name}"
+  name: "${device_name}"
   name_add_mac_suffix: true
   comment: LD2410 Motion Sensor
   project:
@@ -37,8 +37,9 @@ dashboard_import:
   import_full_config: true
 
 wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
   ap:
-    password: "12345678"
 
 captive_portal:
 
