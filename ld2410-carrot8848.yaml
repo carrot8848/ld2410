@@ -139,7 +139,18 @@ text_sensor:
   - platform: template
     name: "target state"
     id: target_state
-        
+    
+  - platform: wifi_info
+    ip_address:
+      name: "${location} Montion Sensor IP Address"
+    ssid:
+      name: "${location} Montion Sensor SSID"
+    bssid:
+      name: "${location} Montion Sensor BSSID"
+    mac_address:
+      name: "${location} Montion Sensor Mac Wifi Address"
+    scan_results:
+      name: "${location} Montion Sensor Latest Scan Results"      
 uart:
   id: uart_bus1
   tx_pin: GPIO16
