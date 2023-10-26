@@ -3,7 +3,6 @@ substitutions:
   location: "客厅"  #传感器放置位置
 esphome:
   name: "${device_name}"
-  name_add_mac_suffix: true
   friendly_name: "${location}LD2410人体存在传感器"
   comment: LD2410 Motion Sensor
   project:
