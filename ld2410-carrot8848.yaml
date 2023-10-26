@@ -1,25 +1,14 @@
 substitutions:
-  device_name: "ld2410-motion"
+  device_name: "ld2410-motion-sensor"
   location: "客厅"  #传感器放置位置
 esphome:
   name: "${device_name}"
   name_add_mac_suffix: true
+  friendly_name: "${location}LD2410人体存在传感器"
   comment: LD2410 Motion Sensor
   project:
-    name: carrot8848.ld2410
+    name: carrot8848.ld2410_esp32
     version: "1.0.0"
-  on_boot:
-    priority: 700
-    then:
-      - wait_until: 
-          api.connected:
-      - lambda: id(config_mode).turn_on();
-      - script.execute: get_all_params
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x02,0x00,0x63,0x00,0x04,0x03,0x02,0x01] #Ĭ�Ϲرչ���ģʽ
-      - delay: 1s
-      - lambda: id(config_mode).turn_off();
-  includes:
-    - ld2410h.h
 esp32:
   board: esp32dev
   framework:
@@ -37,22 +26,14 @@ dashboard_import:
   import_full_config: true
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+  
   ap:
-
 captive_portal:
-
-script:
-  - id: get_all_params
-    then:
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x02,0x00,0x61,0x00,0x04,0x03,0x02,0x01]
-      - delay: 1s
         
 web_server:
   port: 80
   include_internal: true
-  ota: false
+  ota: True
   version: 2
  
 i2c:
@@ -61,96 +42,74 @@ i2c:
   scan: true
   id: bus_a
 
+ld2410:
+
 sensor:
   - platform: bh1750
-    name: "${location} 亮度"
+    name: ${location} 亮度
     address: 0x5c
     update_interval: 10s
     
-  - platform: custom
-    lambda: |-
-      auto s = new ld2410(id(uart_bus1));
-      App.register_component(s);
-      return {s->mov_distance_sensor, s->occ_distance_sensor, s->detect_distance_sensor, s->en_mov_0, s->en_mov_1, s->en_mov_3, s->en_mov_3, s->en_mov_4, s->en_mov_5, s->en_mov_6, s->en_mov_7, s->en_mov_8, s->en_occ_0, s->en_occ_1, s->en_occ_2, s->en_occ_3, s->en_occ_4, s->en_occ_5, s->en_occ_6, s->en_occ_7, s->en_occ_8};
+  - platform: ld2410
+    light:
+      name: ${location}light
+    moving_distance:
+      name : ${location}Moving Distance
+    still_distance:
+      name: ${location}Still Distance
+    moving_energy:
+      name: ${location}Move Energy
+    still_energy:
+      name: ${location}Still Energy
+    detection_distance:
+      name: ${location}Detection Distance
+    g0:
+      move_energy:
+        name: g0 move energy
+      still_energy:
+        name: g0 still energy
+    g1:
+      move_energy:
+        name: g1 move energy
+      still_energy:
+        name: g1 still energy
+    g2:
+      move_energy:
+        name: g2 move energy
+      still_energy:
+        name: g2 still energy
+    g3:
+      move_energy:
+        name: g3 move energy
+      still_energy:
+        name: g3 still energy
+    g4:
+      move_energy:
+        name: g4 move energy
+      still_energy:
+        name: g4 still energy
+    g5:
+      move_energy:
+        name: g5 move energy
+      still_energy:
+        name: g5 still energy
+    g6:
+      move_energy:
+        name: g6 move energy
+      still_energy:
+        name: g6 still energy
+    g7:
+      move_energy:
+        name: g7 move energy
+      still_energy:
+        name: g7 still energy
+    g8:
+      move_energy:
+        name: g8 move energy
+      still_energy:
+        name: g8 still energy
       
-    sensors:
-      - name: mov_distance_sensor
-        id: mov_distance_sensor
-        #internal: true
-        unit_of_measurement: m
-        accuracy_decimals: 2
-        filters:
-          - lambda: return x/100;
-      - name: occ_distance_sensor
-        id: occ_distance_sensor
-        #internal: true
-        unit_of_measurement: m
-        accuracy_decimals: 2
-        filters:
-          - lambda: return x/100;
-      - name: detect_distance_sensor
-        id: detect_distance_sensor
-        #internal: true
-        unit_of_measurement: m
-        accuracy_decimals: 2
-        filters:
-          - lambda: return x/100;
-      # 各个距离门能量值    
-      - name: en_mov_0
-        id: en_mov_0
-      - name: en_mov_1
-        id: en_mov_1
-      - name: en_mov_2
-        id: en_mov_2
-      - name: en_mov_3
-        id: en_mov_3
-      - name: en_mov_4
-        id: en_mov_4
-      - name: en_mov_5
-        id: en_mov_5
-      - name: en_mov_6
-        id: en_mov_6
-      - name: en_mov_7
-        id: en_mov_7
-      - name: en_mov_8
-        id: en_mov_8
-      - name: en_occ_0
-        id: en_occ_0
-      - name: en_occ_1
-        id: en_occ_1
-      - name: en_occ_2
-        id: en_occ_2
-      - name: en_occ_3
-        id: en_occ_3
-      - name: en_occ_4
-        id: en_occ_4
-      - name: en_occ_5
-        id: en_occ_5
-      - name: en_occ_6
-        id: en_occ_6
-      - name: en_occ_7
-        id: en_occ_7
-      - name: en_occ_8
-        id: en_occ_8
-      
-      
-
-text_sensor:
-  - platform: template
-    name: "target state"
-    id: target_state
-    
-  - platform: wifi_info
-    ip_address:
-      name: "${location} Montion Sensor IP Address"
-    ssid:
-      name: "${location} Montion Sensor SSID"
-    bssid:
-      name: "${location} Montion Sensor BSSID"
-    mac_address:
-      name: "${location} Montion Sensor Mac Wifi Address"
-    scan_results:
-      name: "${location} Montion Sensor Latest Scan Results"      
+        
 uart:
   id: uart_bus1
   tx_pin: GPIO16
@@ -164,25 +123,29 @@ uart:
 #      delimiter: [0xF8,0xF7,0xF6,0xF5]
 
 binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: ${location}Presence
+    has_moving_target:
+      name: ${location}Moving Target
+    has_still_target:
+      name: ${location}Still Target
+    out_pin_presence_status:
+      name: ${location}out pin presence status
   - platform: gpio
     id: human_presence_1_motion
     pin: 
       number: GPIO21  
       mode: INPUT_PULLDOWN
-    name: "${location}存在感应"
+    name: ${location}存在感应
     device_class: presence
-    
+
 switch:
-  - platform: template
-    name: "Config mode"
-    id: config_mode
-    optimistic: true
-    on_turn_on:
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x04,0x00,0xFF,0x00,0x01,0x00,0x04,0x03,0x02,0x01]
-      - delay: 1s
-    on_turn_off:
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x02,0x00,0xFE,0x00,0x04,0x03,0x02,0x01]
-      - delay: 1s
+  - platform: ld2410
+    engineering_mode:
+      name: "engineering mode"
+    bluetooth:
+      name: "control bluetooth"
   
   - platform: gpio
     name: "LED_switch"
@@ -191,355 +154,91 @@ switch:
       inverted: true
       mode:
         output: true
-        
+    
+number:
+  - platform: ld2410
+    timeout:
+      name: timeout
+    light_threshold:
+      name: light threshold
+    max_move_distance_gate:
+      name: max move distance gate
+    max_still_distance_gate:
+      name: max still distance gate
+    g0:
+      move_threshold:
+        name: g0 move threshold
+      still_threshold:
+        name: g0 still threshold
+    g1:
+      move_threshold:
+        name: g1 move threshold
+      still_threshold:
+        name: g1 still threshold
+    g2:
+      move_threshold:
+        name: g2 move threshold
+      still_threshold:
+        name: g2 still threshold
+    g3:
+      move_threshold:
+        name: g3 move threshold
+      still_threshold:
+        name: g3 still threshold
+    g4:
+      move_threshold:
+        name: g4 move threshold
+      still_threshold:
+        name: g4 still threshold
+    g5:
+      move_threshold:
+        name: g5 move threshold
+      still_threshold:
+        name: g5 still threshold
+    g6:
+      move_threshold:
+        name: g6 move threshold
+      still_threshold:
+        name: g6 still threshold
+    g7:
+      move_threshold:
+        name: g7 move threshold
+      still_threshold:
+        name: g7 still threshold
+    g8:
+      move_threshold:
+        name: g8 move threshold
+      still_threshold:
+        name: g8 still threshold
 
-  - platform: template
-    name: run_RTA    #打开实时监控
-    id: run_rta
-    optimistic: true
-    
-  - platform: template
-    name: "Debug mode"
-    id: debug_mode
-    optimistic: true
-    on_turn_on:
-      - lambda: id(config_mode).turn_on();
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x02,0x00,0x62,0x00,0x04,0x03,0x02,0x01]
-      - delay: 1s
-      - lambda: id(config_mode).turn_off();
-    on_turn_off:
-      - lambda: id(config_mode).turn_on();
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x02,0x00,0x63,0x00,0x04,0x03,0x02,0x01]
-      - delay: 1s
-      - lambda: id(config_mode).turn_off();
-    
         
 button:
-  - platform: template
-    name: update params
-    id: update_params
-    on_press:
-      - lambda: id(config_mode).turn_on();
-      - script.execute: get_all_params
-      - lambda: id(config_mode).turn_off();
+  - platform: ld2410
+    factory_reset:
+      name: "factory reset"
+    restart:
+      name: "restart"
+    query_params:
+      name: query params
       
   - platform: restart
     name: Reboot
     id: reboot
-    
-  - platform: template
-    name: "Set default"
-    id: set_default
-    on_press:
-      - lambda: id(config_mode).turn_on();
-      - uart.write: [0xFD,0xFC,0xFB,0xFA,0x02,0x00,0xA2,0x00,0x04,0x03,0x02,0x01]
-      - delay: 1s
-      - script.execute: get_all_params
-      - delay: 1s
-      - lambda: id(config_mode).turn_off();
       
-      
-number:
-  - platform: template
-    name: max_distance  #最大探测距离
-    id: max_distance
-    min_value: 0.75
-    max_value: 6
-    initial_value: 6
-    step: 0.75
-    #restore_value: true
-    optimistic: true
-    unit_of_measurement: m   
-    
-  - platform: template
-    name: max_mov_distance  #最大移动探测距离
-    id: max_mov_distance
-    min_value: 0.75
-    max_value: 6
-    initial_value: 6
-    step: 0.75
-    #restore_value: true
-    optimistic: true
-    unit_of_measurement: m
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x60, 0x00, 0x00, 0x00, (unsigned char)(int)(x/0.75), 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)(int)(id(max_occ_distance).state/0.75), 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(none_duration).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
+text_sensor:
+  - platform: ld2410
+    version:
+      name: "firmware version"
+    mac_address:
+      name: "mac address"
 
-    
-  - platform: template
-    name: max_occ_distance  #最大静止探测距离
-    id: max_occ_distance
-    min_value: 0.75
-    max_value: 6
-    initial_value: 6
-    step: 0.75
-    #restore_value: true
-    optimistic: true
-    unit_of_measurement: m
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x60, 0x00, 0x00, 0x00, (unsigned char)(int)(id(max_mov_distance).state/0.75), 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)(int)(x/0.75), 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(none_duration).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-
-  - platform: template
-    name: none_duration  #无人持续时间
-    id: none_duration
-    min_value: 0
-    max_value: 120
-    initial_value: 5
-    step: 1
-    #restore_value: true
-    optimistic: true
-    unit_of_measurement: s
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x60, 0x00, 0x00, 0x00, (unsigned char)(int)(id(max_mov_distance).state/0.75), 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)(int)(id(max_occ_distance).state/0.75), 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-
-  - platform: template
-    name: mov_sn_distance_0
-    id: mov_sn_distance_0
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)0, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_0).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_1
-    id: mov_sn_distance_1
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)1, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_1).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_2
-    id: mov_sn_distance_2
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)2, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_2).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_3
-    id: mov_sn_distance_3
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)3, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_3).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_4
-    id: mov_sn_distance_4
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)4, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_4).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_5
-    id: mov_sn_distance_5
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)5, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_5).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_6
-    id: mov_sn_distance_6
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)6, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_6).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_7
-    id: mov_sn_distance_7
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)7, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_7).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: mov_sn_distance_8
-    id: mov_sn_distance_8
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)8, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)id(occ_sn_distance_8).state, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-
-  - platform: template
-    name: occ_sn_distance_0
-    id: occ_sn_distance_0
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)0, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_0).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_1
-    id: occ_sn_distance_1
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)1, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_1).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_2
-    id: occ_sn_distance_2
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)2, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_2).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_3
-    id: occ_sn_distance_3
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)3, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_3).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_4
-    id: occ_sn_distance_4
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)4, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_4).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_5
-    id: occ_sn_distance_5
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)5, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_5).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_6
-    id: occ_sn_distance_6
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)6, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_6).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_7
-    id: occ_sn_distance_7
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)7, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_7).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-  - platform: template
-    name: occ_sn_distance_8
-    id: occ_sn_distance_8
-    min_value: 0
-    max_value: 100
-    initial_value: 40
-    step: 1
-    #restore_value: true
-    optimistic: true
-    set_action:
-      - uart.write: !lambda
-          id(config_mode).turn_on();
-          return {0xFD,0xFC,0xFB,0xFA, 0x14, 0x00, 0x64, 0x00, 0x00, 0x00, (unsigned char)8, 0x00, 0x00, 0x00, 0x01, 0x00, (unsigned char)id(mov_sn_distance_8).state, 0x00, 0x00, 0x00, 0x02, 0x00, (unsigned char)x, 0x00, 0x00, 0x00, 0x04, 0x03, 0x02, 0x01};
-
-  - platform: template
-    name: update_interval  #实时监控刷新间隔，越大越慢，大概500间隔为1秒
-    id: update_interval
-    min_value: 100
-    max_value: 5000
-    initial_value: 500
-    step: 100
-    restore_value: true
-    optimistic: true
-    #mode: box  
+select:
+  - platform: ld2410
+    distance_resolution:
+      name: "distance resolution"
+    baud_rate:
+      name: "baud rate"
+    light_function:
+      name: light function
+    out_pin_level:
+      name: out pin level
